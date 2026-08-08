@@ -25,15 +25,27 @@ export default function Navbar() {
 
   const [open, setOpen] = useState(false);
 
-  const [dateTime, setDateTime] = useState(new Date());
+  // La date est initialisée à null pour éviter les erreurs d'hydratation
+ 
+
+  const [dateTime, setDateTime] = useState<Date | null>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const updateDateTime = () => {
       setDateTime(new Date());
-    }, 1000);
+    };
 
-    return () => clearInterval(timer);
+    // Évite la mise à jour synchrone dans l'effet
+    const initialUpdate = setTimeout(updateDateTime, 0);
+    const timer = setInterval(updateDateTime, 1000);
+
+    return () => {
+      clearTimeout(initialUpdate);
+      clearInterval(timer);
+    };
   }, []);
+
+
 
   const pageTitle = () => {
     switch (pathname) {
@@ -65,45 +77,23 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
-
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-
         {/* Logo */}
-
-        <Link
-          href="/"
-          className="flex items-center gap-3"
-        >
-
-          <Cpu
-            size={36}
-            className="text-blue-700"
-          />
+        <Link href="/" className="flex items-center gap-3">
+          <Cpu size={36} className="text-blue-700" />
 
           <div>
-
             <h1 className="text-xl font-bold text-blue-700">
-
               Guyzo Technologie
-
             </h1>
 
-            <p className="text-sm text-gray-500">
-
-              {pageTitle()}
-
-            </p>
-
+            <p className="text-sm text-gray-500">{pageTitle()}</p>
           </div>
-
         </Link>
 
-        {/* Desktop */}
-
+        {/* Navigation Desktop */}
         <nav className="hidden md:flex items-center gap-8">
-
           {links.map((item) => (
-
             <Link
               key={item.href}
               href={item.href}
@@ -115,51 +105,40 @@ export default function Navbar() {
             >
               {item.name}
             </Link>
-
           ))}
-
         </nav>
 
-        {/* Date Heure */}
-
+        {/* Date et Heure */}
         <div className="hidden lg:block text-right">
-
           <p className="text-sm text-gray-500">
-
-            {dateTime.toLocaleDateString("fr-FR", {
+            {dateTime?.toLocaleDateString("fr-FR", {
               weekday: "long",
               day: "numeric",
               month: "long",
               year: "numeric",
             })}
-
           </p>
 
-          <p className="text-xl font-bold text-blue-700">
-
-            {dateTime.toLocaleTimeString("fr-FR")}
-
+          <p
+            className="text-xl font-bold text-blue-700"
+            suppressHydrationWarning
+          >
+            {dateTime?.toLocaleTimeString("fr-FR")}
           </p>
-
         </div>
 
-        {/* Mobile */}
-
+        {/* Menu Mobile */}
         <button
           className="md:hidden"
           onClick={() => setOpen(!open)}
         >
           {open ? <X /> : <Menu />}
         </button>
-
       </div>
 
       {open && (
-
         <div className="md:hidden bg-white border-t">
-
           {links.map((item) => (
-
             <Link
               key={item.href}
               href={item.href}
@@ -168,13 +147,9 @@ export default function Navbar() {
             >
               {item.name}
             </Link>
-
           ))}
-
         </div>
-
       )}
-
     </header>
   );
 }

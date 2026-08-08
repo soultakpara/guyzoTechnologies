@@ -23,7 +23,7 @@ export default function Footer() {
             <p className="mt-3 text-gray-300">
 
               Plateforme interne de gestion des réparations
-              d'ordinateurs et smartphones.
+              d&apos;ordinateurs et smartphones.
 
             </p>
 
